@@ -1,0 +1,23 @@
+/* METHOD 1:*/ 
+select seat_id
+from cinema
+where free = 1 AND (
+(seat_id -1 IN (select seat_id from cinema where free = 1))
+or
+(seat_id +1 IN (select seat_id from cinema where free = 1))
+) 
+
+/* ----
+METHOD 2:*/ 
+
+select seat_id
+from 
+    (select 
+         seat_id, 
+         free, 
+         lag(free,1) over (order by seat_id) as free_lag, 
+         lead(free,1) over (order by seat_id) as free_lead
+    from cinema ) as t
+where (free = 1 AND free_lag = 1) 
+OR (free = 1 AND free_lead = 1)
+order by seat_id
